@@ -1,0 +1,1044 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language vietnamese
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Note Xử lý ảnh
+\end_layout
+
+\begin_layout Section
+Gaussian Weighted Histogram Intersection (GWHI)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\begin{align}GWHI=\sum_{\overrightarrow{c_{i}}\in C_{M}}\sum_{\overrightarrow{c_{j}}\in C_{T}}\min\left(h_{M}\left(\overrightarrow{c_{i}}\right),h_{T}\left(\overrightarrow{c_{j}}\right)\right)\cdot w\left(\lVert\overrightarrow{c_{i}}-\overrightarrow{c_{j}}\rVert\right),\end{align}
+\]
+
+\end_inset
+
+trong đó:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+w\left(\lVert\overrightarrow{c_{i}}-\overrightarrow{c_{j}}\rVert\right)=\begin{cases}
+f\left(\lVert\overrightarrow{c_{i}}-\overrightarrow{c_{j}}\rVert\right) & \lVert\overrightarrow{c_{i}}-\overrightarrow{c_{j}}\rVert\leq BW\\
+0 & other
+\end{cases}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Hàm Gaussian 
+\begin_inset Formula $f\left(x\right)$
+\end_inset
+
+ là
+\begin_inset Formula 
+\[
+f\left(x\right)=\frac{1}{\sqrt{2\pi}\sigma}\exp\left(\frac{-x^{2}}{2\sigma^{2}}\right)\quad\text{v\text{ới}\ensuremath{-\infty\leq x\leq\infty}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ta có:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\int_{-3.3\sigma}^{3.3\sigma}f\left(x\right)dx=99.9\%\int_{-\infty}^{\infty}f\left(x\right)dx
+\]
+
+\end_inset
+
+nên 
+\begin_inset Formula $BW=3.3\sigma$
+\end_inset
+
+.
+ Với 
+\begin_inset Formula $\sigma=0.8Th$
+\end_inset
+
+ tức 
+\begin_inset Formula $BW=2.64Th$
+\end_inset
+
+, 
+\begin_inset Formula $Th$
+\end_inset
+
+trong bài báo là 
+\begin_inset Formula $15$
+\end_inset
+
+ (hoặc lấy từ thuật toán MPHM)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\begin{align}\lVert\overrightarrow{c_{i}}-\overrightarrow{c_{j}}\rVert=\sqrt{\left(l_{1}-l_{2}\right)^{2}+\left(u_{1}-u_{2}\right)^{2}+\left(v_{1}-v_{2}\right)^{2}}\end{align}
+\label{eq:aaa}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Theo công thức của OpenCV:
+\end_layout
+
+\begin_layout Itemize
+Công thức chuyển RGB thành XYZ:
+\begin_inset Formula 
+\[
+\begin{bmatrix}X\\
+Y\\
+Z
+\end{bmatrix}=\begin{bmatrix}0.412453 & 0.357580 & 0.180423\\
+0.212671 & 0.715160 & 0.072169\\
+0.019334 & 0.119193 & 0.950227
+\end{bmatrix}\cdot\begin{bmatrix}R\\
+G\\
+B
+\end{bmatrix}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Công thức chuyển đổi XYZ thành CIELuv:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+L^{*}= & \begin{cases}
+\left(\frac{29}{3}\right)^{3}Y & \frac{Y}{Y_{n}}\leq\left(\frac{6}{29}\right)^{3}\\
+116Y^{1/3}-16 & Y>\left(\frac{6}{29}\right)^{3}
+\end{cases}\\
+u^{*}= & 13L^{*}\cdot\left(u'-u_{n}'\right)\\
+v^{*}= & 13L^{*}\cdot\left(v'-u_{n}'\right)
+\end{align*}
+
+\end_inset
+
+trong đó:
+\begin_inset Formula 
+\begin{align*}
+u'= & \frac{4X}{X+15Y+3Z}\\
+v'= & \frac{9Y}{X+15Y+3Z}\\
+u_{n}= & 0.19793943\\
+v_{n}= & 0.46831096
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Khi đó 
+\begin_inset Formula $0\leq L\leq100,-134\leq u\leq220,-140\leq v\leq122$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Colour Ratio Gradients
+\end_layout
+
+\begin_layout Standard
+Gradient của tỉ lệ màu không đổi được tính theo công thức:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\begin{cases}
+\nabla M_{RG}= & \sqrt{\left(\frac{R_{1}G_{2}-R_{2}G_{1}}{R_{2}G_{1}+R_{1}G_{2}}\right)^{2}+\left(\frac{R_{3}G_{4}-R_{4}G_{3}}{R_{4}G_{3}+R_{3}G_{4}}\right)^{2}}\\
+\nabla M_{RB}= & \sqrt{\left(\frac{R_{1}B_{2}-R_{2}B_{1}}{R_{2}B_{1}+R_{1}B_{2}}\right)^{2}+\left(\frac{R_{3}B_{4}-R_{4}B_{3}}{R_{4}B_{3}+R_{3}B_{4}}\right)^{2}}\\
+\nabla M_{GB}= & \sqrt{\left(\frac{G_{1}B_{2}-G_{2}B_{1}}{G_{2}B_{1}+G_{1}B_{2}}\right)^{2}+\left(\frac{G_{3}B_{4}-G_{4}B_{3}}{G_{4}B_{3}+G_{3}B_{4}}\right)^{2}}
+\end{cases}
+\]
+
+\end_inset
+
+trong đó 
+\begin_inset Formula $p=1,2$
+\end_inset
+
+ là hai ô trái phải tức 
+\begin_inset Formula $\left(x-1,y\right)$
+\end_inset
+
+ và 
+\begin_inset Formula $\left(x+1,y\right)$
+\end_inset
+
+ của 
+\begin_inset Formula $\left(x,y\right)$
+\end_inset
+
+, 
+\begin_inset Formula $p=3,$
+\end_inset
+
+4 là hai ô trên dưới tức 
+\begin_inset Formula $\left(x,y-1\right)$
+\end_inset
+
+ và 
+\begin_inset Formula $\left(x,y+1\right)$
+\end_inset
+
+ của 
+\begin_inset Formula $\left(x,y\right)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Thực hiện đếm số lần một gradient của tỉ lệ màu xuất hiện trong ảnh, thu
+ được histogram của ảnh truy vấn 
+\begin_inset Formula $Q$
+\end_inset
+
+ là 
+\begin_inset Formula $\mathcal{H}^{Q}$
+\end_inset
+
+ và ảnh cần xét 
+\begin_inset Formula $I_{t}$
+\end_inset
+
+ là 
+\begin_inset Formula $\mathcal{H}^{I_{t}}$
+\end_inset
+
+.
+ Ta có 
+\begin_inset Formula $\mathcal{D}_{a}$
+\end_inset
+
+ và 
+\begin_inset Formula $\mathcal{D}_{x}$
+\end_inset
+
+ là histogram intersection và histogram matching định nghĩa bởi chuẩn hóa
+ tương quan chéo (normalized cross correlation) là:
+\begin_inset Formula 
+\begin{align*}
+\mathcal{D}_{a}\left(\mathcal{H}^{Q},\mathcal{H}^{I_{t}}\right)= & \frac{\sum_{\overrightarrow{k}=1}^{N}\min\left\{ \mathcal{H}^{I_{t}}\left(\overrightarrow{k}\right),\mathcal{H}^{Q}\left(\overrightarrow{k}\right)\right\} }{\sum_{\overrightarrow{k}=1}^{N}\mathcal{H}^{Q}\left(\overrightarrow{k}\right)}\\
+\mathcal{D}_{x}\left(\mathcal{H}^{Q},\mathcal{H}^{I_{t}}\right)= & \frac{\sum_{\overrightarrow{k}=1}^{N}\mathcal{H}^{I_{t}}\left(\overrightarrow{k}\right)\mathcal{H}^{Q}\left(\overrightarrow{k}\right)}{\sum_{\overrightarrow{k}=1}^{N}\left(\mathcal{H}^{I_{t}}\left(\overrightarrow{k}\right)\right)^{2}}
+\end{align*}
+
+\end_inset
+
+trong đó 
+\begin_inset Formula $\overrightarrow{k}$
+\end_inset
+
+ là bậc màu và 
+\begin_inset Formula $N$
+\end_inset
+
+ là số bậc màu.
+\end_layout
+
+\begin_layout Standard
+Ta chia thuật toán thành hai bước tách ảnh thành các vùng và thu nhận ảnh
+ nhằm mục đích giảm số lượng ảnh khớp sai.
+\end_layout
+
+\begin_layout Subsection
+Chia ảnh thành các vùng đặc trưng (Segmentationinto Texture Regions)
+\end_layout
+
+\begin_layout Itemize
+Khởi tạo: Ảnh đầu vào là ảnh truy vấn 
+\begin_inset Formula $Q$
+\end_inset
+
+ và ảnh cần xét 
+\begin_inset Formula $I_{k}$
+\end_inset
+
+.
+ Từ gradient tỉ lệ màu, ta thu được histogram tương ứng 
+\begin_inset Formula $\mathcal{H}^{Q},\mathcal{H}^{I_{k}}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+Phân tách: Ta thực hiện tách một góc phần tư thành 4 góc phần tư nhỏ khi
+ nó không đủ độ tương thích được tính theo 
+\begin_inset Formula $\mathcal{D}_{a}$
+\end_inset
+
+.
+ Nếu 
+\begin_inset Formula $\mathcal{D}_{a}$
+\end_inset
+
+ dưới ngưỡng cho trước, ta coi góc phần tư có kết cấu tương ứng ảnh truy
+ vấn, ngược lại, ta tiếp tục chia nhỏ.
+ Việc chia nhỏ tiếp tục đến khi có kết cấu phù hợp hoặc đạt cỡ pixel nhỏ
+ nhất, ở đây ta đặt là 
+\begin_inset Formula $8\times8$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+Gộp lại: Thực hiện nối các vùng lân cận lại.
+ Ta cho phép các vùng lân cận được gộp vào khi 
+\begin_inset Formula $\mathcal{D}_{x}$
+\end_inset
+
+ của chúng với ảnh truy vấn đạt dưới ngưỡng nhất định.
+ Ta bắt đầu từ khối có độ tương đồng cao nhất với ảnh truy vấn và xem xét
+ các khối liền kề, việc xem xét dừng lại khi mọi khối lân cận gộp vào đều
+ cho 
+\begin_inset Formula $\mathcal{D}_{x}$
+\end_inset
+
+ vượt ngưỡng.
+\end_layout
+
+\begin_layout Itemize
+Mở rộng vùng: Do có rất nhiều vùng nhỏ ở biên vùng liên kết, cần có phương
+ pháp cho phép các vùng đủ lớn có thể thực hiện mở rộng.
+ Thuật toán chọn những vùng có cỡ đủ lớn, sau đó cho vùng gộp với vùng lân
+ cận phù hợp nhất, đồng thời kết quả gộp có 
+\begin_inset Formula $\mathcal{D}_{x}$
+\end_inset
+
+ thỏa mãn độ đo kết cấu cho trước.
+ Quá trình gộp dừng lại khi ko còn vùng lớn nào cần gộp.
+\end_layout
+
+\begin_layout Itemize
+Output: Một ảnh gán nhãn xây bằng cách gán nhãn từng pixel dựa vào vùng
+ của pixel.
+ Mỗi vùng có một nhãn 
+\begin_inset Formula $j$
+\end_inset
+
+, 
+\begin_inset Formula $1\leq j\leq$
+\end_inset
+
+ số vùng cuối.
+\end_layout
+
+\begin_layout Subsection
+Thu thập ảnh (Color Constant Texture Retrieval)
+\end_layout
+
+\begin_layout Standard
+Để tiết kiệm thời gian, ta thực hiện theo các bước:
+\end_layout
+
+\begin_layout Itemize
+Bước 1: Lọc sơ các ảnh bằng histogram intersection, chọn ra những ảnh có
+ điểm cao nhất.
+\end_layout
+
+\begin_layout Itemize
+Bước 2: áp dụng thuật toán phân đoạn ảnh (segmentation) ở trên cho các ảnh
+ lọc ra từ bước 1.
+\end_layout
+
+\begin_layout Itemize
+Bước 3: Với mỗi ảnh cần xét, ta chọn vùng có độ tương quan 
+\begin_inset Formula $\mathcal{D}_{a}$
+\end_inset
+
+ cao nhất với ảnh gốc để so sánh, sau đó sắp xếp chúng theo 
+\begin_inset Formula $\mathcal{D}_{x}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Section
+Colour Edge Cooccurrence Histograms (CECH)
+\end_layout
+
+\begin_layout Subsection
+Cách tính CECH histogram 
+\end_layout
+
+\begin_layout Standard
+Cho ảnh F, ta thực hiện tính CECH histogram của ảnh theo các bước sau:
+\end_layout
+
+\begin_layout Itemize
+Bước 1: Detecting edges
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Để thu được tập cạnh 
+\begin_inset Formula $E$
+\end_inset
+
+ của ảnh 
+\begin_inset Formula $F=f\left(x,y\right)$
+\end_inset
+
+, ta dùng các điểm cạnh giả có cường độ gradient mạnh.
+ Gradient của ảnh 
+\begin_inset Formula $f\left(x,y\right)$
+\end_inset
+
+ tại điểm 
+\begin_inset Formula $\left(x,y\right)$
+\end_inset
+
+ được định nghĩa bằng:
+\begin_inset Formula 
+\[
+\nabla f=\begin{bmatrix}G_{x}\\
+G_{y}
+\end{bmatrix}=\begin{bmatrix}\frac{\partial f}{\partial x}\\
+\frac{\partial f}{\partial y}
+\end{bmatrix}
+\]
+
+\end_inset
+
+độ lớn và hướng của vecto này được, kí hiệu bởi 
+\begin_inset Formula $\nabla f\left(x,y\right)$
+\end_inset
+
+ và 
+\begin_inset Formula $\theta\left(x,y\right)$
+\end_inset
+
+ là:
+\begin_inset Formula 
+\[
+\nabla f\left(x,y\right)=\sqrt{G_{x}^{2}+G_{y}^{2}}
+\]
+
+\end_inset
+
+và 
+\begin_inset Formula 
+\[
+\theta\left(x,y\right)=\tan^{-1}\left(\frac{G_{y}}{G_{x}}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Hướng của cạnh tại vị trí 
+\begin_inset Formula $\left(x,y\right)$
+\end_inset
+
+ vuông góc với hướng của vecto gradient.
+ Tính gradient của ảnh dựa vào đạo hàm riêng 
+\begin_inset Formula $\frac{\partial f}{\partial x}$
+\end_inset
+
+ và 
+\begin_inset Formula $\frac{\partial f}{\partial y}$
+\end_inset
+
+ tại mọi pixel.
+ Trong bài này, toán tử Sobel được sử dụng để lấy đạo hàm cấp 1 tại mỗi
+ điểm.
+ 
+\end_layout
+
+\begin_layout Itemize
+Các pixel có cường độ mạnh hơn ngưỡng 
+\begin_inset Formula $TH_{G}=30$
+\end_inset
+
+ cho trước được coi là cạnh và được xem xét.
+ Do đó các tập cạnh có thể mô tả bằng:
+\begin_inset Formula 
+\[
+E\left(x,y\right)=\begin{cases}
+1 & \nabla f\left(x,y\right)\geq TH_{G}\\
+0 & \text{còn lại}
+\end{cases}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Bước 2: Định vị cặp pixel
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Với điểm cạnh 
+\begin_inset Formula $p$
+\end_inset
+
+ tại 
+\begin_inset Formula $\left(x,y\right)$
+\end_inset
+
+, ta lấy hai điểm 
+\begin_inset Formula $p_{1},p_{2}$
+\end_inset
+
+ thuộc hai phía của hướng gradient của 
+\begin_inset Formula $p$
+\end_inset
+
+ và cách 
+\begin_inset Formula $p$
+\end_inset
+
+ một khoảng 
+\begin_inset Formula $d$
+\end_inset
+
+ nhất định.
+ Khi đó tọa độ 
+\begin_inset Formula $\left(x_{1},y_{1}\right)$
+\end_inset
+
+ và 
+\begin_inset Formula $\left(x_{2},y_{2}\right)$
+\end_inset
+
+ được tính bằng
+\begin_inset Formula 
+\[
+\begin{cases}
+x_{1}= & x-d\times\cos\theta\\
+y_{1}= & y+d\times\sin\theta
+\end{cases}
+\]
+
+\end_inset
+
+và 
+\begin_inset Formula 
+\[
+\begin{cases}
+x_{2}= & x+d\times\cos\theta\\
+y_{2}= & y-d\times\sin\theta
+\end{cases}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Bước 3: Cộng lại
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Kí hiệu giá trị màu ở điểm 
+\begin_inset Formula $p_{1},p_{2}$
+\end_inset
+
+ là 
+\begin_inset Formula $\overrightarrow{c_{1}},\overrightarrow{c_{2}}$
+\end_inset
+
+.
+ Tập màu tương ứng của CECH được tính bằng:
+\begin_inset Formula 
+\begin{align*}
+\text{CECH}\left(\overrightarrow{c_{1}},\overrightarrow{c_{2}},d\right) & =\text{size}\bigl(\bigl\{\left(p_{1},p_{2}\right)\vert p_{1},p_{2}\in F\\
+ & \text{ và }\lVert p_{1}-p\rVert=\lVert p_{2}-p\rVert=d\bigr\}\bigr)
+\end{align*}
+
+\end_inset
+
+trong đó 
+\begin_inset Formula $\overrightarrow{c_{1}},\overrightarrow{c_{2}}\in C$
+\end_inset
+
+là tập màu của ảnh.
+\end_layout
+
+\begin_layout Itemize
+Sau khi quét mọi điểm cạnh trên ảnh, ta tổng hợp được các cặp màu giống
+ nhau trong ảnh và tổng hợp chúng vào các bậc màu của biểu đồ CECH.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Bước 4: Chuẩn hóa CECH histogram với tổng số điểm cạnh của ảnh.
+\end_layout
+
+\begin_layout Subsection
+Giảm số màu.
+\end_layout
+
+\begin_layout Standard
+Giả sử số màu trong ảnh là 
+\begin_inset Formula $N_{C}$
+\end_inset
+
+.
+ Khi đó số cặp màu pixel có thể xảu ra là 
+\begin_inset Formula $N_{C}\times N_{C}$
+\end_inset
+
+, đây cũng là chiều của biểu đồ CECH khi 
+\begin_inset Formula $d$
+\end_inset
+
+ cố định.
+ Không mất tính tổng quát, giả sử hai ảnh cần xét có cùng số màu.
+ Nếu tập màu hai ảnh giống hệt nhau, ta chỉ cần thực hiện so sánh từng bậc
+ màu tương ứng.
+ Do đó, số phép toán tối thiểu khi so sánh hai CECH histogram là 
+\begin_inset Formula $N_{C}^{2}$
+\end_inset
+
+.
+ Tuy nhiên, nếu tập màu của hai ảnh khác nhau, với mỗi bậc màu trong CECH
+ này, cần so sánh với mọi bậc màu trong CECH còn lại.
+ Do đó, số phép toán là 
+\begin_inset Formula $N_{C}^{4}$
+\end_inset
+
+ để so sánh tìm sự giống nhau giữa hai biểu đồ CECH.
+\end_layout
+
+\begin_layout Standard
+Với một ảnh 24 bit màu, ta có 
+\begin_inset Formula $N_{C}=2^{24}$
+\end_inset
+
+, rất khó để có thể thực hiện so sánh trong thời gian thực, do vậy ta cần
+ một phương pháp để giảm số màu.
+\end_layout
+
+\begin_layout Standard
+Theo phương pháp của Xiaolin Wu, với một tập màu 
+\begin_inset Formula $\Omega(c_{i},c_{j}]$
+\end_inset
+
+ 
+\begin_inset Formula $\left(c_{i}=\left(c_{ir},c_{ig},c_{ib}\right)\right)$
+\end_inset
+
+, ta cần chọn 
+\begin_inset Formula $c$
+\end_inset
+
+ sao cho biểu thức sau nhỏ nhất:
+\begin_inset Formula 
+\[
+E(c_{i},c]+E(c,c_{j})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+trong đó
+\begin_inset Formula 
+\begin{align}
+c & \in\left\{ c_{jr}\times c_{jg}\times(c_{ib},c_{jb}]\right\} \cup\left\{ c_{jr}\times(c_{ig},c_{jg}]\times c_{jb}\right\} \label{eq:ccc}\\
+ & \quad\cup\left\{ (c_{\text{ir}},c_{jr}]\times c_{jg}\times c_{jb}\right\} 
+\end{align}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Các công thức, ký hiệu được định nghĩa như sau:
+\end_layout
+
+\begin_layout Itemize
+Một màu 
+\begin_inset Formula $c$
+\end_inset
+
+ thuộc tập 
+\begin_inset Formula $\Omega(c_{i},c_{j}]$
+\end_inset
+
+ khi ba giá trị 
+\begin_inset Formula $c_{r},c_{g},c_{b}$
+\end_inset
+
+ lần lượt thuộc tương ứng 
+\begin_inset Formula $(c_{ir},c_{jr}],(c_{ig},c_{jg}],(c_{ib},c_{jb}]$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\omega(c_{i},c_{j}]=\sum_{c\in(c_{i},c_{j}]}P\left(c\right)$
+\end_inset
+
+ với 
+\begin_inset Formula $P\left(c\right)$
+\end_inset
+
+ là tỉ lệ màu 
+\begin_inset Formula $c$
+\end_inset
+
+ trong ảnh cần xét.
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $E(c_{i},c_{j}]=\sum_{c\in\Omega(c_{i},c_{j}]}c^{2}P\left(c\right)-\frac{\left[\sum_{c\in\Omega(c_{i},c_{j}]}cP\left(c\right)\right]^{2}}{\omega(c_{i},c_{j}]}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Để rút gọn số phép tính cho công thức, ta áp dụng:
+\begin_inset Formula 
+\begin{align}
+\sum_{c\in\Omega(c_{i},c_{j}]}f\left(c\right)P\left(c\right) & =\Biggl[\sum_{c\in\Omega(0,v_{7}]}-\sum_{c\in\Omega(0,v_{6}]}-\sum_{c\in\Omega(0,v_{5}]}+\sum_{c\in\Omega(0,v_{4}]}\label{eq:bbb}\\
+ & -\sum_{c\in\Omega(0,v_{3}]}+\sum_{c\in\Omega(0,v_{2}]}+\sum_{c\in\Omega(0,v_{1}]}-\sum_{c\in\Omega(0,v_{0}]}\Biggr]f\left(c\right)P\left(c\right)\nonumber 
+\end{align}
+
+\end_inset
+
+trong đó 
+\begin_inset Formula $v_{i}$
+\end_inset
+
+ là tám đỉnh của 
+\begin_inset Formula $\Omega(c_{i},c_{j}]$
+\end_inset
+
+
+\begin_inset Formula 
+\begin{align*}
+v_{0}=\left(c_{ir},c_{ig},c_{ib}\right), & v_{4}=\left(c_{jr},c_{ig},c_{ib}\right)\\
+v_{1}=\left(c_{ir},c_{ig},c_{jb}\right), & v_{5}=\left(c_{jr},c_{ig},c_{jb}\right)\\
+v_{2}=\left(c_{ir},c_{jg},c_{ib}\right), & v_{6}=\left(c_{jr},c_{jg},c_{ib}\right)\\
+v_{3}=\left(c_{ir},c_{jg},c_{jb}\right), & v_{7}=\left(c_{jr},c_{jg},c_{jb}\right)
+\end{align*}
+
+\end_inset
+
+,vecto 
+\begin_inset Formula $0$
+\end_inset
+
+ là điểm thỏa mãn 
+\begin_inset Formula $\sum_{c\in\Omega(-\infty,0]}P\left(c\right)=0$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Thay 
+\begin_inset Formula $f\left(c\right)$
+\end_inset
+
+ bằng 
+\begin_inset Formula $c^{d}$
+\end_inset
+
+, với 
+\begin_inset Formula $c^{0}=1,c^{2}=cc^{T}$
+\end_inset
+
+, ta thu được:
+\begin_inset Formula 
+\[
+M_{d}(c_{t})=\sum_{c\in\Omega(0,c_{t}]}c^{d}P\left(c\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ta thấy 4 trên 8 
+\begin_inset Formula $M_{d}\left(c\right)$
+\end_inset
+
+ thuộc công thức 
+\begin_inset Formula $\text{\eqref{eq:bbb}}$
+\end_inset
+
+ có giá trị không đổi với mọi 
+\begin_inset Formula $c$
+\end_inset
+
+ thuộc tập 
+\begin_inset Formula $\text{\ref{eq:ccc}}$
+\end_inset
+
+, từ đó giảm số lần cần tính lại các giá trị biểu thức dạng 
+\begin_inset Formula $\sum_{c\in\Omega(c_{i},c_{j}]}c^{d}P\left(c\right)$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Như vậy, với mỗi 
+\begin_inset Formula $\Omega(c_{i},c_{j}]$
+\end_inset
+
+, cần tìm giá trị nhỏ nhất của biểu thức sau:
+\begin_inset Formula 
+\begin{align*}
+E(c_{i},c]+E(c,c_{j}]= & \sum_{c\in\Omega(c_{i},c_{j}]}c^{2}P\left(c\right)\\
+ & -\frac{\left[\sum_{c\in\Omega(c_{i},c]}cP\left(c\right)\right]^{2}}{\omega(c_{i},c]}-\frac{\left[\sum_{c\in\Omega(c,c_{j}]}cP\left(c\right)\right]^{2}}{\omega(c,c_{j}]},
+\end{align*}
+
+\end_inset
+
+tương ứng với việc tìm giá trị lớn nhất của:
+\begin_inset Formula 
+\begin{align*}
+\frac{\left[\sum_{c\in\Omega(c_{i},c]}cP\left(c\right)\right]^{2}}{\omega(c_{i},c]}+ & \frac{\left[\sum_{c\in\Omega(c,c_{j}]}cP\left(c\right)\right]^{2}}{\omega(c,c_{j}]}\\
+=\frac{\left[\sum_{c\in\Omega(c_{i},c]}cP\left(c\right)\right]^{2}}{\omega(c_{i},c]} & +\frac{\left[\sum_{c\in\Omega(c_{i},c_{j}]}cP\left(c\right)-\sum_{c\in\Omega(c_{i},c]}cP\left(c\right)\right]^{2}}{\omega(c_{i},c_{j}]-\omega(c_{i},c]}.
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $F\left(x,y\right)=\text{convert\_rule}\left[r,g,b\right]$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+So sánh biểu đồ CECH bằng GWHI mở rộng.
+\end_layout
+
+\begin_layout Standard
+Để so sánh hai biểu đồ CECH có tập màu tương tự nhau, khởi tạo 
+\begin_inset Formula $\eta$
+\end_inset
+
+ bằng 
+\begin_inset Formula $0$
+\end_inset
+
+.
+ Với mỗi 
+\begin_inset Formula $\text{CECH}_{M}\left(\overrightarrow{c_{i}},\overrightarrow{c_{j}},d\right)_{\vert\overrightarrow{c_{i}},\overrightarrow{c_{j}}\in C_{M}}$
+\end_inset
+
+ trong biểu đồ CECH của ảnh cần xét, quét từng
+\begin_inset Formula $\text{CECH}_{T}\left(\overrightarrow{c_{k}},\overrightarrow{c_{l}},d\right)_{\vert\overrightarrow{c_{k}},\overrightarrow{c_{l}}\in c_{t}}$
+\end_inset
+
+ trong biểu đồ CECH của ảnh gốc khi thực hiện các bước 
+\begin_inset Formula $\left(1\right)$
+\end_inset
+
+ đến 
+\begin_inset Formula $\left(4\right)$
+\end_inset
+
+ đến khi tất cả các cặp màu trong CECH của ảnh cần xét đã được quét:
+\end_layout
+
+\begin_layout Enumerate
+Tính khoảng cách 
+\begin_inset Formula $d_{1}=\lVert\overrightarrow{c_{i}}-\overrightarrow{c_{k}}\rVert,d_{2}=\lVert\overrightarrow{c_{j}}-\overrightarrow{c_{l}}\rVert$
+\end_inset
+
+ theo công thức 
+\begin_inset Formula $\text{\eqref{eq:aaa}}$
+\end_inset
+
+, chọn 
+\begin_inset Formula $d_{C}=\max\left(d_{1}.d_{2}\right)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Nếu 
+\begin_inset Formula $d_{C}\leq BW=52.8$
+\end_inset
+
+??, phần giao nhau giữa hai biểu đồ CECH được định nghĩa:
+\begin_inset Formula 
+\[
+\text{its}=\min\left(\text{CECH}_{M}\left(\overrightarrow{c_{i}},\overrightarrow{c_{j}},d\right),\text{CECH}_{T}\left(\overrightarrow{c_{k}},\overrightarrow{c_{l}},d\right)\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Áp dụng hàm Gaussian của khoảng cách vào its ta có trọng số:
+\begin_inset Formula 
+\[
+\text{its}'=\text{its}\times\exp\left(-\frac{d_{C}^{2}}{2\sigma^{2}}\right)\quad\text{với}\quad-BW\leq d_{C}\leq BW,
+\]
+
+\end_inset
+
+trong đó 
+\begin_inset Formula $\sigma$
+\end_inset
+
+ và 
+\begin_inset Formula $BW$
+\end_inset
+
+ được nêu lên trong phần trước.
+\end_layout
+
+\begin_layout Enumerate
+Tổng các trọng số ta được: 
+\begin_inset Formula $\eta\gets\eta+\text{its}'$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\eta$
+\end_inset
+
+ cuối cùng là tỉ lệ đối sánh giữa hai biểu đồ CECH thuộc khoảng 
+\begin_inset Formula $\left[0,1\right].$
+\end_inset
+
+ 
+\begin_inset Formula $\eta$
+\end_inset
+
+ càng lớn, hai ảnh càng giống nhau.
+\end_layout
+
+\end_body
+\end_document
